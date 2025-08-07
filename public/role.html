@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FixMyRoom - Select Role 🎯</title>
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="img/logo.png" type="image/png" />
+  <meta name="theme-color" content="#1db954" />
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .role-container {
+      background: #111;
+      padding: 30px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 0 20px #1db954;
+    }
+    h1 {
+      margin-bottom: 25px;
+      font-size: 2rem;
+    }
+    button {
+      width: 100%;
+      padding: 18px;
+      margin: 12px 0;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      color: #fff;
+      background: #1db954;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 0 10px #1db954;
+    }
+    button:hover {
+      background: #17a544;
+      box-shadow: 0 0 20px #17a544;
+    }
+    .role-customer { background: #2196F3; }
+    .role-worker { background: #FF9800; }
+    .role-store { background: #9C27B0; }
+    .role-admin { background: #f44336; }
+  </style>
+</head>
+<body>
+  <div class="role-container">
+    <h1>Choose Your Role 🔑</h1>
+    <button class="role-customer" data-role="customer">🧑‍💼 Customer</button>
+    <button class="role-worker" data-role="worker">🛠️ Worker (Painter, Plumber, Electrician)</button>
+    <button class="role-store" data-role="store">🏬 Store</button>
+    <button class="role-admin" data-role="admin">⚙️ Admin</button>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './firebase.js';
+    import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+    import { showAlert } from './utils.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
+
+    let currentUser = null;
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      currentUser = user;
+    });
+
+    document.querySelectorAll('button').forEach(button => {
+      button.addEventListener('click', async () => {
+        if (!currentUser) {
+          showAlert('error', 'You must be logged in!');
+          return;
+        }
+        const selectedRole = button.dataset.role;
+        let roleToSave = selectedRole;
+
+        // For worker button, we don't know exact trade here, redirect to profile to pick
+        if (selectedRole === 'worker') {
+          // Save a placeholder or redirect directly
+          // You can also modify this to pick exact trade later
+          roleToSave = '';
+        }
+
+        try {
+          await setDoc(doc(db, 'users', currentUser.uid), {
+            role: roleToSave,
+            updatedAt: serverTimestamp(),
+          }, { merge: true });
+
+          if (roleToSave) {
+            // Redirect by role
+            if (roleToSave === 'admin') window.location.href = 'admin.html';
+            else if (roleToSave === 'store') window.location.href = 'store.html';
+            else if (roleToSave === 'customer') window.location.href = 'map.html';
+            else window.location.href = 'map.html';
+          } else {
+            // If no role saved (worker), send to profile for more details
+            window.location.href = 'profile.html';
+          }
+        } catch (err) {
+          showAlert('error', err.message);
+        }
+      });
+    });
+  </script>
+
+  <!-- Register Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(() => console.log("✅ Service Worker registered"))
+        .catch(() => console.log("❌ SW registration failed"));
+    }
+  </script>
+</body>
+</html>

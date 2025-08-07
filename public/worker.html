@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FixMyRoom - Worker Dashboard 🔧</title>
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="img/logo.png" type="image/png" />
+  <meta name="theme-color" content="#1db954" />
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #121212;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 10px #1db954aa;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      color: #1db954;
+    }
+
+    main {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #welcomeMsg {
+      font-size: 1.4rem;
+      margin-bottom: 25px;
+    }
+
+    #jobsList {
+      width: 100%;
+      max-width: 600px;
+      background: #222;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #1db954aa;
+      padding: 20px;
+      max-height: 350px;
+      overflow-y: auto;
+      margin-bottom: 30px;
+    }
+
+    .job {
+      background: #111;
+      margin-bottom: 15px;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #1db95466;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #ddd;
+    }
+
+    .job-info {
+      flex-grow: 1;
+      margin-right: 10px;
+    }
+
+    .btn-group {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    button {
+      flex: 1 1 45%;
+      min-width: 140px;
+      padding: 18px 10px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      color: #fff;
+      background: #1db954;
+      box-shadow: 0 0 15px #1db954aa;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background: #17a544;
+      box-shadow: 0 0 25px #17a544;
+    }
+
+    footer {
+      background: #121212;
+      text-align: center;
+      padding: 15px;
+      font-size: 0.9rem;
+      color: #555;
+      box-shadow: 0 -2px 8px #1db954aa;
+    }
+
+    @media (max-width: 480px) {
+      button {
+        flex-basis: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>FixMyRoom 🔧 Worker</h1>
+  </header>
+
+  <main>
+    <div id="welcomeMsg">Welcome, <span id="userName">Worker</span>! 👷‍♂️</div>
+
+    <div id="jobsList">
+      <p style="color:#666; text-align:center;">Loading your assigned jobs... ⏳</p>
+    </div>
+
+    <div class="btn-group">
+      <button id="btnRefresh">🔄 Refresh Jobs</button>
+      <button id="btnProfile">👤 Edit Profile</button>
+      <button id="btnLogout">🚪 Logout</button>
+    </div>
+  </main>
+
+  <footer>
+    FixMyRoom &copy; 2025 — Fixing made easy! 🛠️
+  </footer>
+
+  <script type="module">
+    import { auth, db } from './firebase.js';
+    import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
+    import { collection, query, where, getDocs, doc, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+    import { showAlert } from './utils.js';
+
+    const userNameSpan = document.getElementById('userName');
+    const jobsList = document.getElementById('jobsList');
+    const btnRefresh = document.getElementById('btnRefresh');
+    const btnProfile = document.getElementById('btnProfile');
+    const btnLogout = document.getElementById('btnLogout');
+
+    let currentUser = null;
+
+    function renderJobs(jobs) {
+      if (jobs.length === 0) {
+        jobsList.innerHTML = `<p style="color:#666; text-align:center;">No jobs assigned yet. Please check back later! 📭</p>`;
+        return;
+      }
+      jobsList.innerHTML = '';
+      jobs.forEach(job => {
+        const div = document.createElement('div');
+        div.className = 'job';
+        div.innerHTML = `
+          <div class="job-info">
+            <strong>Request:</strong> ${job.title || 'N/A'}<br />
+            <strong>Customer:</strong> ${job.customerName || 'N/A'}<br />
+            <strong>Status:</strong> ${job.status || 'Pending'}
+          </div>
+          <button data-id="${job.id}" class="btnUpdateStatus">✅ Mark Done</button>
+        `;
+        jobsList.appendChild(div);
+      });
+
+      // Attach event listeners to "Mark Done" buttons
+      document.querySelectorAll('.btnUpdateStatus').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const jobId = e.target.getAttribute('data-id');
+          try {
+            const jobRef = doc(db, 'requests', jobId);
+            await updateDoc(jobRef, { status: 'Done' });
+            showAlert('success', 'Job marked as done! 🎉');
+            loadJobs();
+          } catch (err) {
+            showAlert('error', err.message);
+          }
+        });
+      });
+    }
+
+    async function loadJobs() {
+      if (!currentUser) return;
+      jobsList.innerHTML = `<p style="color:#666; text-align:center;">Loading your assigned jobs... ⏳</p>`;
+      try {
+        const q = query(collection(db, 'requests'), where('workerId', '==', currentUser.uid));
+        const querySnapshot = await getDocs(q);
+        const jobs = [];
+        querySnapshot.forEach(docSnap => {
+          jobs.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        renderJobs(jobs);
+      } catch (err) {
+        jobsList.innerHTML = `<p style="color:#f00; text-align:center;">Failed to load jobs: ${err.message}</p>`;
+      }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      currentUser = user;
+      try {
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        userNameSpan.textContent = snap.data()?.name || user.email || 'Worker';
+      } catch {
+        userNameSpan.textContent = user.email || 'Worker';
+      }
+      loadJobs();
+    });
+
+    btnRefresh.addEventListener('click', loadJobs);
+    btnProfile.addEventListener('click', () => {
+      window.location.href = 'profile.html';
+    });
+    btnLogout.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.href = 'login.html';
+      } catch (err) {
+        showAlert('error', err.message);
+      }
+    });
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(() => console.log("✅ Service Worker registered"))
+        .catch(() => console.log("❌ SW registration failed"));
+    }
+  </script>
+
+</body>
+</html>

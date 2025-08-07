@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🔐 FixMyRoom - Login / Signup</title>
+
+  <!-- PWA Manifest & Favicon -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="img/logo.png" type="image/png" />
+  <meta name="theme-color" content="#1db954" />
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="css/dashboard.css" />
+
+  <style>
+    /* Mobile-friendly, big buttons, dark theme */
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      text-align: center;
+    }
+
+    .login-container {
+      background: #111;
+      border-radius: 16px;
+      padding: 32px 28px;
+      width: 95vw;
+      max-width: 400px;
+      box-shadow: 0 0 18px rgba(0, 255, 100, 0.3);
+    }
+
+    img.logo {
+      width: 110px;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 0 4px #1db954);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: #1db954;
+      font-weight: 600;
+    }
+
+    p.description {
+      margin-bottom: 28px;
+      font-size: 1.1rem;
+      color: #bbb;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 16px 14px;
+      margin: 12px 0;
+      font-size: 1.2rem;
+      border-radius: 12px;
+      border: none;
+      outline: none;
+      background: #222;
+      color: #fff;
+      box-shadow: inset 0 0 8px #111;
+      transition: box-shadow 0.3s ease;
+    }
+
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+      box-shadow: inset 0 0 12px #1db954;
+    }
+
+    button {
+      width: 100%;
+      background: #1db954;
+      color: #000;
+      font-size: 1.3rem;
+      font-weight: 700;
+      padding: 16px;
+      margin-top: 20px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 14px #1db954aa;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    button:hover {
+      background: #17a344;
+      box-shadow: 0 8px 20px #1db954ff;
+    }
+
+    #googleBtn {
+      background: #db4437;
+      margin-top: 16px;
+      color: white;
+      font-weight: 700;
+      box-shadow: 0 6px 14px #db4437cc;
+    }
+    #googleBtn:hover {
+      background: #c23321;
+      box-shadow: 0 8px 20px #db4437ff;
+    }
+
+    .signup-link {
+      margin-top: 26px;
+      font-size: 1rem;
+      color: #0dcaf0;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 600;
+    }
+    .signup-link:hover {
+      text-decoration: underline;
+    }
+
+    a.back-home {
+      display: inline-block;
+      margin-top: 32px;
+      font-size: 1rem;
+      color: #bbb;
+      text-decoration: none;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+    a.back-home:hover {
+      color: #1db954;
+    }
+
+    /* Alert style */
+    #alert {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 600;
+      display: none;
+      max-width: 350px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #alert.success {
+      background: #28a745cc;
+      color: #000;
+      box-shadow: 0 0 10px #28a745bb;
+    }
+    #alert.error {
+      background: #dc3545cc;
+      color: #fff;
+      box-shadow: 0 0 10px #dc3545bb;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <img src="img/logo.png" alt="FixMyRoom Logo" class="logo" />
+    <h1>FixMyRoom 🛠️</h1>
+    <h2>🔐 Login / Signup</h2>
+    <p class="description">Access workers, stores & services instantly 🚀</p>
+
+    <form id="loginForm" autocomplete="off">
+      <input type="email" id="email" placeholder="📧 Enter your email" required />
+      <input type="password" id="password" placeholder="🔒 Enter your password" required minlength="6" />
+      <button type="submit">➡️ Continue</button>
+    </form>
+
+    <div class="signup-link" id="signupBtn">✨ Create Account</div>
+
+    <button id="googleBtn">🌐 Continue with Google</button>
+
+    <a href="index.html" class="back-home">🏠 Back to Home</a>
+
+    <div id="alert"></div>
+  </div>
+
+  <!-- Firebase + Auth Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      GoogleAuthProvider,
+      signInWithPopup,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    // Your Firebase config - REPLACE if needed
+    const firebaseConfig = {
+      apiKey: "AIzaSyAB5KK4gMMwCAzmxjzTRAd0gK-gzpzbzmw",
+      authDomain: "fixmyroomwithzocial.firebaseapp.com",
+      projectId: "fixmyroomwithzocial",
+      storageBucket: "fixmyroomwithzocial.firebasestorage.app",
+      messagingSenderId: "594671909340",
+      appId: "1:594671909340:web:9a9feedefed205a50ef719"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Show alert message
+    function showAlert(type, msg) {
+      const alertBox = document.getElementById('alert');
+      alertBox.textContent = msg;
+      alertBox.className = "";
+      alertBox.classList.add(type);
+      alertBox.style.display = "block";
+      setTimeout(() => {
+        alertBox.style.display = "none";
+      }, 5000);
+    }
+
+    async function saveUser(user) {
+      if (!user) return;
+      try {
+        await setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          email: user.email || "",
+          name: user.displayName || "",
+          phone: user.phoneNumber || "",
+          isPremium: false,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+      } catch (e) {
+        console.error("Error saving user data:", e);
+      }
+    }
+
+    async function redirectUser(user) {
+      if (!user) return;
+      try {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        if (!snap.exists() || !snap.data().role) {
+          window.location.href = "profile.html";
+          return;
+        }
+        const data = snap.data();
+        if (data.role === "admin") window.location.href = "admin.html";
+        else if (data.role === "customer") window.location.href = "map.html";
+        else if (["painter", "plumber", "electrician"].includes(data.role)) window.location.href = "map.html";
+        else if (data.role === "store") window.location.href = "store.html";
+        else window.location.href = "profile.html";
+      } catch (e) {
+        console.error("Redirect error:", e);
+      }
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) redirectUser(user);
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = e.target.email.value.trim();
+      const password = e.target.password.value;
+
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        await saveUser(cred.user);
+        redirectUser(cred.user);
+      } catch (err) {
+        showAlert("error", "❌ " + err.message);
+      }
+    });
+
+    document.getElementById('signupBtn').addEventListener('click', async () => {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!email || password.length < 6) {
+        showAlert("error", "⚠️ Please enter a valid email and a password of at least 6 characters.");
+        return;
+      }
+
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await saveUser(cred.user);
+        showAlert("success", "✅ Account created! Please complete your profile.");
+        setTimeout(() => window.location.href = "profile.html", 1500);
+      } catch (err) {
+        showAlert("error", "❌ " + err.message);
+      }
+    });
+
+    document.getElementById('googleBtn').addEventListener('click', async () => {
+      const provider = new GoogleAuthProvider();
+      try {
+        const cred = await signInWithPopup(auth, provider);
+        await saveUser(cred.user);
+        const snap = await getDoc(doc(db, "users", cred.user.uid));
+        if (!snap.exists() || !snap.data().role) {
+          window.location.href = "profile.html";
+        } else {
+          redirectUser(cred.user);
+        }
+      } catch (err) {
+        showAlert("error", "❌ " + err.message);
+      }
+    });
+  </script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(() => console.log("✅ Service Worker registered"))
+        .catch((err) => console.error("❌ Service Worker failed", err));
+    }
+  </script>
+</body>
+</html>

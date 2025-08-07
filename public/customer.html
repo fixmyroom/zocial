@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FixMyRoom - Customer Dashboard 🧑‍💼</title>
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="img/logo.png" type="image/png" />
+  <meta name="theme-color" content="#1db954" />
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #121212;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 10px #1db954aa;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      color: #1db954;
+    }
+
+    main {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #welcomeMsg {
+      font-size: 1.4rem;
+      margin-bottom: 25px;
+    }
+
+    #map {
+      width: 100%;
+      max-width: 600px;
+      height: 350px;
+      background: #222;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #1db954aa;
+      margin-bottom: 30px;
+    }
+
+    .btn-group {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    button {
+      flex: 1 1 45%;
+      min-width: 140px;
+      padding: 18px 10px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      color: #fff;
+      background: #1db954;
+      box-shadow: 0 0 15px #1db954aa;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background: #17a544;
+      box-shadow: 0 0 25px #17a544;
+    }
+
+    footer {
+      background: #121212;
+      text-align: center;
+      padding: 15px;
+      font-size: 0.9rem;
+      color: #555;
+      box-shadow: 0 -2px 8px #1db954aa;
+    }
+
+    @media (max-width: 480px) {
+      button {
+        flex-basis: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>FixMyRoom 🧑‍💼 Customer</h1>
+  </header>
+
+  <main>
+    <div id="welcomeMsg">Welcome back, <span id="userName">User</span>! 👋</div>
+    <div id="map">🗺️ Your nearby workers & stores map will load here...</div>
+
+    <div class="btn-group">
+      <button id="btnRequests">📝 My Requests</button>
+      <button id="btnNewRequest">➕ New Request</button>
+      <button id="btnPremium">⭐ Go Premium</button>
+      <button id="btnLogout">🚪 Logout</button>
+    </div>
+  </main>
+
+  <footer>
+    FixMyRoom &copy; 2025 — Connect, Book & Fix Fast! 🚀
+  </footer>
+
+  <script type="module">
+    import { auth, db } from './firebase.js';
+    import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
+    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+    import { showAlert } from './utils.js';
+
+    const userNameSpan = document.getElementById('userName');
+    const btnRequests = document.getElementById('btnRequests');
+    const btnNewRequest = document.getElementById('btnNewRequest');
+    const btnPremium = document.getElementById('btnPremium');
+    const btnLogout = document.getElementById('btnLogout');
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      try {
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        const data = snap.data();
+        userNameSpan.textContent = data?.name || user.email || 'User';
+      } catch {
+        userNameSpan.textContent = user.email || 'User';
+      }
+    });
+
+    btnRequests.addEventListener('click', () => {
+      window.location.href = 'requests.html'; // You should create this page or adjust accordingly
+    });
+
+    btnNewRequest.addEventListener('click', () => {
+      window.location.href = 'new-request.html'; // Create this page or adapt
+    });
+
+    btnPremium.addEventListener('click', () => {
+      window.location.href = 'premium.html'; // Your premium page
+    });
+
+    btnLogout.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.href = 'login.html';
+      } catch (err) {
+        showAlert('error', err.message);
+      }
+    });
+  </script>
+
+  <!-- Register Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(() => console.log("✅ Service Worker registered"))
+        .catch(() => console.log("❌ SW registration failed"));
+    }
+  </script>
+
+</body>
+</html>

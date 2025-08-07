@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FixMyRoom - Complete Profile 🛠️</title>
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="img/logo.png" type="image/png" />
+  <meta name="theme-color" content="#1db954" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: #fff;
+      margin: 0; padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      background: #111;
+      padding: 25px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 0 20px #1db954;
+    }
+    h1 {
+      margin-bottom: 15px;
+      font-size: 2rem;
+      text-align: center;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    label {
+      font-weight: bold;
+      margin-bottom: 6px;
+      font-size: 1rem;
+    }
+    input[type="text"],
+    input[type="tel"],
+    select {
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      outline: none;
+    }
+    input[type="file"] {
+      color: #ccc;
+      margin-top: 8px;
+    }
+    .small-note {
+      font-size: 0.9rem;
+      color: #888;
+      margin-top: -10px;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 14px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #fff;
+      background-color: #1db954;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 0 15px #1db954;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #17a544;
+      box-shadow: 0 0 20px #17a544;
+    }
+    .role-pricing {
+      display: none;
+      flex-direction: column;
+    }
+    .role-pricing input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+    }
+    .location-status {
+      font-size: 0.9rem;
+      color: #ccc;
+      margin-bottom: 10px;
+      font-style: italic;
+    }
+    .preview-img {
+      display: block;
+      margin: 10px auto 20px auto;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #1db954;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Complete Your Profile ✍️</h1>
+    <form id="profileForm">
+      <label for="name">👤 Full Name</label>
+      <input type="text" id="name" placeholder="Your full name" required />
+
+      <label for="phone">📞 Phone Number</label>
+      <input type="tel" id="phone" placeholder="+977 9851xxxxxx" required />
+
+      <label for="role">🎯 Select Role</label>
+      <select id="role" required>
+        <option value="" disabled selected>Select your role</option>
+        <option value="customer">Customer 🧑‍💼</option>
+        <option value="painter">Painter 🖌️</option>
+        <option value="plumber">Plumber 🔧</option>
+        <option value="electrician">Electrician 💡</option>
+        <option value="store">Store 🏬</option>
+        <option value="admin">Admin ⚙️</option>
+      </select>
+
+      <div id="pricingSection" class="role-pricing">
+        <label for="pricing">💵 Pricing (per hour or job)</label>
+        <input type="text" id="pricing" placeholder="Example: Rs. 500 / hour" />
+      </div>
+
+      <label>📍 Your Location</label>
+      <div class="location-status" id="locationStatus">Click "Get Location" below to auto-fill your location</div>
+      <button type="button" id="getLocationBtn" style="background:#28a745; margin-bottom: 15px;">📡 Get Location</button>
+
+      <label for="profilePhoto">🖼️ Upload Profile Photo</label>
+      <input type="file" id="profilePhoto" accept="image/*" />
+      <img id="photoPreview" class="preview-img" alt="Profile Preview" style="display:none;" />
+
+      <button type="submit">✅ Save Profile</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { auth, db, storage } from './firebase.js';
+    import { doc, setDoc, getDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+    import { ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js';
+    import { showAlert } from './utils.js';
+
+    const profileForm = document.getElementById('profileForm');
+    const roleSelect = document.getElementById('role');
+    const pricingSection = document.getElementById('pricingSection');
+    const getLocationBtn = document.getElementById('getLocationBtn');
+    const locationStatus = document.getElementById('locationStatus');
+    const profilePhotoInput = document.getElementById('profilePhoto');
+    const photoPreview = document.getElementById('photoPreview');
+
+    let currentUser = null;
+    let locationCoords = null;
+    let photoFile = null;
+
+    // Show pricing input only for worker roles & store
+    roleSelect.addEventListener('change', () => {
+      const val = roleSelect.value;
+      if (['painter', 'plumber', 'electrician'].includes(val)) {
+        pricingSection.style.display = 'flex';
+      } else {
+        pricingSection.style.display = 'none';
+      }
+    });
+
+    // Preview uploaded photo
+    profilePhotoInput.addEventListener('change', () => {
+      const file = profilePhotoInput.files[0];
+      if (file) {
+        photoFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          photoPreview.src = e.target.result;
+          photoPreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    getLocationBtn.addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        locationStatus.textContent = '❌ Geolocation is not supported by your browser.';
+        return;
+      }
+      locationStatus.textContent = '📡 Getting location...';
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          locationCoords = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude
+          };
+          locationStatus.textContent = `✅ Location detected: Lat ${locationCoords.lat.toFixed(5)}, Lng ${locationCoords.lng.toFixed(5)}`;
+        },
+        (err) => {
+          locationStatus.textContent = '❌ Unable to retrieve location.';
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+
+    async function uploadPhoto(uid) {
+      if (!photoFile) return null;
+      const photoRef = ref(storage, `profilePhotos/${uid}`);
+      await uploadBytes(photoRef, photoFile);
+      return await getDownloadURL(photoRef);
+    }
+
+    profileForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!auth.currentUser) {
+        showAlert('error', '❌ You must be logged in!');
+        return;
+      }
+
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const role = roleSelect.value;
+      const pricing = document.getElementById('pricing').value.trim();
+
+      if (!name || !phone || !role) {
+        showAlert('error', '❌ Please fill all required fields!');
+        return;
+      }
+
+      let photoURL = null;
+      try {
+        photoURL = await uploadPhoto(auth.currentUser.uid);
+      } catch (err) {
+        showAlert('error', '❌ Photo upload failed: ' + err.message);
+        return;
+      }
+
+      try {
+        const userDocRef = doc(db, 'users', auth.currentUser.uid);
+        await setDoc(userDocRef, {
+          name,
+          phone,
+          role,
+          pricing: pricing || null,
+          location: locationCoords || null,
+          photoURL: photoURL || null,
+          updatedAt: serverTimestamp(),
+          isPremium: false
+        }, { merge: true });
+
+        showAlert('success', '✅ Profile saved! Redirecting...');
+        setTimeout(() => {
+          if (role === 'admin') {
+            window.location.href = 'admin.html';
+          } else if (role === 'store') {
+            window.location.href = 'store.html';
+          } else if (role === 'customer') {
+            window.location.href = 'map.html';
+          } else {
+            window.location.href = 'map.html';
+          }
+        }, 2500);
+      } catch (err) {
+        showAlert('error', '❌ Failed to save profile: ' + err.message);
+      }
+    });
+
+    // Load existing profile if any
+    async function loadProfile() {
+      if (!auth.currentUser) return;
+      const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        if (data.name) document.getElementById('name').value = data.name;
+        if (data.phone) document.getElementById('phone').value = data.phone;
+        if (data.role) {
+          roleSelect.value = data.role;
+          if (['painter', 'plumber', 'electrician'].includes(data.role)) {
+            pricingSection.style.display = 'flex';
+            if (data.pricing) document.getElementById('pricing').value = data.pricing;
+          }
+        }
+        if (data.photoURL) {
+          photoPreview.src = data.photoURL;
+          photoPreview.style.display = 'block';
+        }
+        if (data.location) {
+          locationCoords = data.location;
+          locationStatus.textContent = `📍 Saved Location: Lat ${locationCoords.lat.toFixed(5)}, Lng ${locationCoords.lng.toFixed(5)}`;
+        }
+      }
+    }
+
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        currentUser = user;
+        loadProfile();
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+
+  <!-- Register Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(() => console.log("✅ Service Worker registered"))
+        .catch(() => console.log("❌ SW registration failed"));
+    }
+  </script>
+</body>
+</html>

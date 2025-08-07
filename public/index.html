@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FixMyRoom 🚀 - Home</title>
+
+  <!-- ✅ Fixed Manifest and Favicon Paths -->
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/img/logo.png" type="image/png" />
+  <meta name="theme-color" content="#1db954" />
+
+  <!-- ✅ Styles -->
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <style>
+    /* Same CSS as before (unchanged) */
+    body {
+      margin: 0; 
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #000;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      text-align: center;
+      overflow-x: hidden;
+      transition: opacity 0.8s ease;
+    }
+
+    .container {
+      max-width: 400px;
+      background: #111;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #1db954aa;
+      user-select: none;
+    }
+
+    .logo {
+      width: 140px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 10px;
+    }
+
+    p.slogan {
+      font-size: 1.4rem;
+      margin-bottom: 35px;
+      color: #bbb;
+    }
+
+    .btn-main {
+      display: inline-block;
+      background: #1db954;
+      color: #000;
+      font-weight: 700;
+      font-size: 1.6rem;
+      padding: 20px 40px;
+      border-radius: 40px;
+      box-shadow: 0 0 25px #1db954cc;
+      text-decoration: none;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      user-select: none;
+      margin-bottom: 30px;
+      width: 100%;
+      max-width: 350px;
+    }
+    .btn-main:hover,
+    .btn-main:focus {
+      background: #13a641;
+      box-shadow: 0 0 30px #13a641cc;
+      transform: translateY(-3px);
+      outline: none;
+    }
+
+    .social-links {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .social-links a {
+      flex: 1 1 140px;
+      padding: 18px 24px;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 1.4rem;
+      color: #fff;
+      text-decoration: none;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.5);
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+    .social-links a.whatsapp {
+      background: #25d366;
+    }
+    .social-links a.whatsapp:hover,
+    .social-links a.whatsapp:focus {
+      background: #1ebe56;
+      box-shadow: 0 0 16px #25d366;
+      transform: translateY(-3px);
+      outline: none;
+    }
+    .social-links a.facebook {
+      background: #1877f2;
+    }
+    .social-links a.facebook:hover,
+    .social-links a.facebook:focus {
+      background: #0f5bd4;
+      box-shadow: 0 0 16px #1877f2;
+      transform: translateY(-3px);
+      outline: none;
+    }
+
+    .repeat-container {
+      margin-top: 50px;
+      border-top: 1px solid #1db95444;
+      padding-top: 30px;
+    }
+
+    .repeat-container h1 {
+      font-size: 2.4rem;
+      margin-bottom: 8px;
+      color: #1db954;
+    }
+    .repeat-container p {
+      font-size: 1.2rem;
+      color: #ccc;
+      margin-bottom: 25px;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2.4rem;
+      }
+      p.slogan {
+        font-size: 1.2rem;
+      }
+      .btn-main {
+        font-size: 1.4rem;
+        padding: 18px 30px;
+        max-width: 100%;
+      }
+      .social-links a {
+        font-size: 1.2rem;
+        padding: 16px 18px;
+        flex: 1 1 100%;
+      }
+      .repeat-container {
+        margin-top: 40px;
+        padding-top: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="mainContainer">
+    <!-- ✅ Fixed Image Path -->
+    <img src="/img/logo.png" alt="FixMyRoom Logo" class="logo" loading="lazy" />
+    <h1>FixMyRoom 🛠️</h1>
+    <p class="slogan">Book workers & stores near you in real-time 🚀</p>
+    <a href="login.html" class="btn-main" aria-label="Login or Signup">🔑 Login / Signup</a>
+    <div class="social-links" role="navigation" aria-label="Social media links">
+      <a href="https://wa.me/9779851151294" target="_blank" rel="noopener" class="whatsapp" aria-label="WhatsApp chat">💬 WhatsApp</a>
+      <a href="https://www.facebook.com/people/ZocialPainter/61578207554465/" target="_blank" rel="noopener" class="facebook" aria-label="Facebook page">📘 Facebook</a>
+    </div>
+
+    <div class="repeat-container" aria-live="polite">
+      <h1>FixMyRoom 🛠️</h1>
+      <p>Book workers & stores near you in real-time 🚀</p>
+      <a href="login.html" class="btn-main" aria-label="Login or Signup">🔑 Login / Signup</a>
+      <div class="social-links" role="navigation" aria-label="Social media links">
+        <a href="https://wa.me/9779851151294" target="_blank" rel="noopener" class="whatsapp" aria-label="WhatsApp chat">💬 WhatsApp</a>
+        <a href="https://www.facebook.com/people/ZocialPainter/61578207554465/" target="_blank" rel="noopener" class="facebook" aria-label="Facebook page">📘 Facebook</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Optional reload effect -->
+  <script>
+    const container = document.getElementById('mainContainer');
+    function fadeOutInReload() {
+      container.style.opacity = '0';
+      setTimeout(() => {
+        location.reload();
+      }, 800);
+    }
+    setInterval(fadeOutInReload, 3000);
+  </script>
+
+  <!-- ✅ Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log("✅ Service Worker registered"))
+        .catch(e => console.error("❌ SW registration failed", e));
+    }
+  </script>
+</body>
+</html>
