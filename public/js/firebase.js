@@ -1,25 +1,64 @@
-// public/js/firebase.js
+// js/firebase.js
+// Modular Firebase helper for the app.
+// Replace config values if needed; these are from your project context.
 
-// Import Firebase modules from CDN
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
-import { getAuth } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
-import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged as _onAuthStateChanged,
+  signOut as _signOut
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// ✅ Your Firebase project configuration
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  onSnapshot,
+  addDoc,
+  serverTimestamp,
+  query,
+  where,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// --- Firebase config (your project) ---
 const firebaseConfig = {
-  apiKey: "AIzaSyAB5KK4gMMwCAzmxjzTRAd0gK-gzpzbzmw",
+  apiKey: "AIzaSyC7D-JCIAJdsecrluDKEFKr7XBeOb3RkO4",
   authDomain: "fixmyroomwithzocial.firebaseapp.com",
-  projectId: "fixmyroomwithzocial",
-  // Remove storageBucket since you don’t want Storage
-  messagingSenderId: "594671909340",
-  appId: "1:594671909340:web:9a9feedefed205a50ef719"
+  projectId: "fixmyroom-7a518",
+  storageBucket: "fixmyroom-7a518.appspot.com",
+  messagingSenderId: "128618384581",
+  appId: "1:128618384581:web:2560232e41345b39d974ac"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-// Export Firebase services you want to use
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+// Re-export small wrappers for convenience
+const onAuthStateChanged = _onAuthStateChanged;
+const signOut = _signOut;
 
-// Note: no storage here since you don’t want to use Storage
+export {
+  app,
+  auth,
+  db,
+  onAuthStateChanged,
+  signOut,
+
+  // Firestore helpers
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  onSnapshot,
+  addDoc,
+  serverTimestamp,
+  query,
+  where,
+  getDocs
+};

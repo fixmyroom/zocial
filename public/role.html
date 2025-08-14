@@ -3,130 +3,82 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FixMyRoom - Select Role 🎯</title>
-  <link rel="stylesheet" href="css/dashboard.css" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="img/logo.png" type="image/png" />
-  <meta name="theme-color" content="#1db954" />
+  <title>FixMyRoom - Select Role</title>
+  <link rel="stylesheet" href="css/common.css" />
   <style>
-    body {
-      background: #000;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
     .role-container {
-      background: #111;
-      padding: 30px;
-      border-radius: 15px;
-      width: 90%;
       max-width: 400px;
-      text-align: center;
-      box-shadow: 0 0 20px #1db954;
-    }
-    h1 {
-      margin-bottom: 25px;
-      font-size: 2rem;
-    }
-    button {
-      width: 100%;
-      padding: 18px;
-      margin: 12px 0;
-      font-size: 1.2rem;
-      font-weight: bold;
-      border: none;
+      margin: 4rem auto;
+      background: #1f1f1f;
+      padding: 2rem;
       border-radius: 12px;
-      cursor: pointer;
-      color: #fff;
-      background: #1db954;
-      transition: background-color 0.3s ease;
-      box-shadow: 0 0 10px #1db954;
+      box-shadow: 0 0 15px #ff572288;
+      text-align: center;
     }
-    button:hover {
-      background: #17a544;
-      box-shadow: 0 0 20px #17a544;
+    select {
+      font-size: 1.2rem;
+      padding: 0.8rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      width: 100%;
     }
-    .role-customer { background: #2196F3; }
-    .role-worker { background: #FF9800; }
-    .role-store { background: #9C27B0; }
-    .role-admin { background: #f44336; }
   </style>
 </head>
 <body>
   <div class="role-container">
-    <h1>Choose Your Role 🔑</h1>
-    <button class="role-customer" data-role="customer">🧑‍💼 Customer</button>
-    <button class="role-worker" data-role="worker">🛠️ Worker (Painter, Plumber, Electrician)</button>
-    <button class="role-store" data-role="store">🏬 Store</button>
-    <button class="role-admin" data-role="admin">⚙️ Admin</button>
+    <h1>Select Your Role</h1>
+    <form id="role-form">
+      <select id="role" required>
+        <option value="" disabled selected>Select your role</option>
+        <option value="customer">Customer</option>
+        <option value="worker">Worker</option>
+        <option value="store">Store</option>
+        <option value="admin">Admin</option>
+      </select>
+      <button type="submit" style="margin-top:1.5rem;">Continue</button>
+    </form>
   </div>
 
   <script type="module">
-    import { auth, db } from './firebase.js';
-    import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
-    import { showAlert } from './utils.js';
-    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
+    import { auth, firestore } from './js/firebase-config.js';
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-    let currentUser = null;
-
-    onAuthStateChanged(auth, user => {
+    onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
         return;
       }
-      currentUser = user;
-    });
-
-    document.querySelectorAll('button').forEach(button => {
-      button.addEventListener('click', async () => {
-        if (!currentUser) {
-          showAlert('error', 'You must be logged in!');
-          return;
-        }
-        const selectedRole = button.dataset.role;
-        let roleToSave = selectedRole;
-
-        // For worker button, we don't know exact trade here, redirect to profile to pick
-        if (selectedRole === 'worker') {
-          // Save a placeholder or redirect directly
-          // You can also modify this to pick exact trade later
-          roleToSave = '';
-        }
-
-        try {
-          await setDoc(doc(db, 'users', currentUser.uid), {
-            role: roleToSave,
-            updatedAt: serverTimestamp(),
-          }, { merge: true });
-
-          if (roleToSave) {
-            // Redirect by role
-            if (roleToSave === 'admin') window.location.href = 'admin.html';
-            else if (roleToSave === 'store') window.location.href = 'store.html';
-            else if (roleToSave === 'customer') window.location.href = 'map.html';
-            else window.location.href = 'map.html';
-          } else {
-            // If no role saved (worker), send to profile for more details
+      try {
+        const snap = await getDoc(doc(firestore, 'users', user.uid));
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.role && data.profileComplete) {
+            window.location.href = `${data.role}-dashboard.html`;
+          } else if (data.role && !data.profileComplete) {
             window.location.href = 'profile.html';
           }
-        } catch (err) {
-          showAlert('error', err.message);
         }
-      });
+      } catch (e) {
+        console.error(e);
+      }
     });
-  </script>
 
-  <!-- Register Service Worker -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./service-worker.js')
-        .then(() => console.log("✅ Service Worker registered"))
-        .catch(() => console.log("❌ SW registration failed"));
-    }
+    document.getElementById('role-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const role = document.getElementById('role').value;
+      const user = auth.currentUser;
+      if (!user) {
+        alert('Sign in first');
+        return;
+      }
+      try {
+        await setDoc(doc(firestore, 'users', user.uid), { role, profileComplete: false }, { merge: true });
+        window.location.href = 'profile.html';
+      } catch (err) {
+        alert('Error saving role: ' + err.message);
+      }
+    });
   </script>
 </body>
 </html>

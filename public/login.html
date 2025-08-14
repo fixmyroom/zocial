@@ -1,331 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>🔐 FixMyRoom - Login / Signup</title>
-
-  <!-- PWA Manifest & Favicon -->
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="img/logo.png" type="image/png" />
-  <meta name="theme-color" content="#1db954" />
-
-  <!-- Main CSS -->
-  <link rel="stylesheet" href="css/dashboard.css" />
-
-  <style>
-    /* Mobile-friendly, big buttons, dark theme */
-    body {
-      background: #000;
-      color: #fff;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      text-align: center;
-    }
-
-    .login-container {
-      background: #111;
-      border-radius: 16px;
-      padding: 32px 28px;
-      width: 95vw;
-      max-width: 400px;
-      box-shadow: 0 0 18px rgba(0, 255, 100, 0.3);
-    }
-
-    img.logo {
-      width: 110px;
-      margin-bottom: 20px;
-      filter: drop-shadow(0 0 4px #1db954);
-    }
-
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 12px;
-      font-weight: 700;
-    }
-
-    h2 {
-      margin-top: 0;
-      margin-bottom: 20px;
-      color: #1db954;
-      font-weight: 600;
-    }
-
-    p.description {
-      margin-bottom: 28px;
-      font-size: 1.1rem;
-      color: #bbb;
-    }
-
-    input[type="email"],
-    input[type="password"] {
-      width: 100%;
-      padding: 16px 14px;
-      margin: 12px 0;
-      font-size: 1.2rem;
-      border-radius: 12px;
-      border: none;
-      outline: none;
-      background: #222;
-      color: #fff;
-      box-shadow: inset 0 0 8px #111;
-      transition: box-shadow 0.3s ease;
-    }
-
-    input[type="email"]:focus,
-    input[type="password"]:focus {
-      box-shadow: inset 0 0 12px #1db954;
-    }
-
-    button {
-      width: 100%;
-      background: #1db954;
-      color: #000;
-      font-size: 1.3rem;
-      font-weight: 700;
-      padding: 16px;
-      margin-top: 20px;
-      border-radius: 14px;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 6px 14px #1db954aa;
-      transition: background 0.3s ease, box-shadow 0.3s ease;
-    }
-    button:hover {
-      background: #17a344;
-      box-shadow: 0 8px 20px #1db954ff;
-    }
-
-    #googleBtn {
-      background: #db4437;
-      margin-top: 16px;
-      color: white;
-      font-weight: 700;
-      box-shadow: 0 6px 14px #db4437cc;
-    }
-    #googleBtn:hover {
-      background: #c23321;
-      box-shadow: 0 8px 20px #db4437ff;
-    }
-
-    .signup-link {
-      margin-top: 26px;
-      font-size: 1rem;
-      color: #0dcaf0;
-      cursor: pointer;
-      user-select: none;
-      font-weight: 600;
-    }
-    .signup-link:hover {
-      text-decoration: underline;
-    }
-
-    a.back-home {
-      display: inline-block;
-      margin-top: 32px;
-      font-size: 1rem;
-      color: #bbb;
-      text-decoration: none;
-      user-select: none;
-      transition: color 0.3s ease;
-    }
-    a.back-home:hover {
-      color: #1db954;
-    }
-
-    /* Alert style */
-    #alert {
-      margin-top: 16px;
-      padding: 12px;
-      border-radius: 10px;
-      font-weight: 600;
-      display: none;
-      max-width: 350px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    #alert.success {
-      background: #28a745cc;
-      color: #000;
-      box-shadow: 0 0 10px #28a745bb;
-    }
-    #alert.error {
-      background: #dc3545cc;
-      color: #fff;
-      box-shadow: 0 0 10px #dc3545bb;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#000000" />
+<title>FixMyRoom — Login</title>
+<link rel="manifest" href="manifest.json" />
+<style>
+  body {
+    background-color: #000000;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 2rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .logo {
+    max-width: 120px;
+    margin-bottom: 1rem;
+  }
+  input[type="email"],
+  input[type="password"] {
+    width: 100%;
+    max-width: 320px;
+    padding: 0.6rem 1rem;
+    margin: 0.5rem 0;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background-color: #222;
+    color: #fff;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+  input::placeholder {
+    color: #bbb;
+  }
+  button#loginBtn {
+    width: 100%;
+    max-width: 320px;
+    background-color: #E74C3C; /* red */
+    color: #fff;
+    font-weight: 600;
+    padding: 0.7rem;
+    border: none;
+    border-radius: 6px;
+    margin: 0.8rem 0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button#loginBtn:hover,
+  button#loginBtn:focus {
+    background-color: #c0392b;
+    outline: none;
+  }
+  button.google-btn {
+    width: 100%;
+    max-width: 320px;
+    background-color: #F1C40F; /* yellow */
+    color: #222;
+    font-weight: 600;
+    padding: 0.7rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button.google-btn:hover,
+  button.google-btn:focus {
+    background-color: #d4ac0d;
+    outline: none;
+  }
+  .link {
+    margin-top: 1rem;
+    color: #fff;
+    font-size: 0.9rem;
+  }
+  .link a {
+    color: #2ECC71; /* green */
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .link a:hover,
+  .link a:focus {
+    text-decoration: underline;
+    outline: none;
+  }
+</style>
 </head>
 <body>
-  <div class="login-container">
-    <img src="img/logo.png" alt="FixMyRoom Logo" class="logo" />
-    <h1>FixMyRoom 🛠️</h1>
-    <h2>🔐 Login / Signup</h2>
-    <p class="description">Access workers, stores & services instantly 🚀</p>
 
-    <form id="loginForm" autocomplete="off">
-      <input type="email" id="email" placeholder="📧 Enter your email" required />
-      <input type="password" id="password" placeholder="🔒 Enter your password" required minlength="6" />
-      <button type="submit">➡️ Continue</button>
-    </form>
+<img class="logo" src="img/icon-192.png" alt="FixMyRoom Logo" />
+<h1>Login</h1>
 
-    <div class="signup-link" id="signupBtn">✨ Create Account</div>
+<input type="email" id="email" placeholder="Email" autocomplete="email" required aria-label="Email address" />
+<input type="password" id="password" placeholder="Password" autocomplete="current-password" required aria-label="Password" />
+<button id="loginBtn" aria-label="Login with email and password">Login</button>
+<button id="googleLogin" class="google-btn" aria-label="Sign in with Google">Sign in with Google</button>
 
-    <button id="googleBtn">🌐 Continue with Google</button>
+<div class="link">No account? <a href="signup.html">Sign up</a></div>
 
-    <a href="index.html" class="back-home">🏠 Back to Home</a>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithPopup,
+    onAuthStateChanged,
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    serverTimestamp,
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
-    <div id="alert"></div>
-  </div>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAB5KK4gMMwCAzmxjzTRAd0gK-gzpzbzmw",
+    authDomain: "fixmyroomwithzocial.firebaseapp.com",
+    projectId: "fixmyroomwithzocial",
+    storageBucket: "fixmyroomwithzocial.appspot.com",
+    messagingSenderId: "594671909340",
+    appId: "1:594671909340:web:9a9feedefed205a50ef719",
+  };
 
-  <!-- Firebase + Auth Logic -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import {
-      getAuth,
-      signInWithEmailAndPassword,
-      createUserWithEmailAndPassword,
-      GoogleAuthProvider,
-      signInWithPopup,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    import {
-      getFirestore,
-      doc,
-      setDoc,
-      getDoc,
-      serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const role = await getUserRole(user.uid);
+      redirectByRole(role);
+    }
+  });
 
-    // Your Firebase config - REPLACE if needed
-    const firebaseConfig = {
-      apiKey: "AIzaSyAB5KK4gMMwCAzmxjzTRAd0gK-gzpzbzmw",
-      authDomain: "fixmyroomwithzocial.firebaseapp.com",
-      projectId: "fixmyroomwithzocial",
-      storageBucket: "fixmyroomwithzocial.firebasestorage.app",
-      messagingSenderId: "594671909340",
-      appId: "1:594671909340:web:9a9feedefed205a50ef719"
-    };
+  document.getElementById("loginBtn").addEventListener("click", async () => {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    // Show alert message
-    function showAlert(type, msg) {
-      const alertBox = document.getElementById('alert');
-      alertBox.textContent = msg;
-      alertBox.className = "";
-      alertBox.classList.add(type);
-      alertBox.style.display = "block";
-      setTimeout(() => {
-        alertBox.style.display = "none";
-      }, 5000);
+    if (!email || !password) {
+      alert("Please fill all fields");
+      return;
+    }
+    if (!validateEmail(email)) {
+      alert("Please enter a valid email address");
+      return;
+    }
+    if (password.length < 6) {
+      alert("Password should be at least 6 characters");
+      return;
     }
 
-    async function saveUser(user) {
-      if (!user) return;
-      try {
-        await setDoc(doc(db, "users", user.uid), {
-          uid: user.uid,
-          email: user.email || "",
-          name: user.displayName || "",
-          phone: user.phoneNumber || "",
-          isPremium: false,
-          updatedAt: serverTimestamp()
-        }, { merge: true });
-      } catch (e) {
-        console.error("Error saving user data:", e);
-      }
+    try {
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
+      await ensureUserDoc(userCred.user);
+      const role = await getUserRole(userCred.user.uid);
+      redirectByRole(role);
+    } catch (err) {
+      alert("Login failed: " + err.message);
     }
+  });
 
-    async function redirectUser(user) {
-      if (!user) return;
-      try {
-        const snap = await getDoc(doc(db, "users", user.uid));
-        if (!snap.exists() || !snap.data().role) {
-          window.location.href = "profile.html";
-          return;
-        }
-        const data = snap.data();
-        if (data.role === "admin") window.location.href = "admin.html";
-        else if (data.role === "customer") window.location.href = "map.html";
-        else if (["painter", "plumber", "electrician"].includes(data.role)) window.location.href = "map.html";
-        else if (data.role === "store") window.location.href = "store.html";
-        else window.location.href = "profile.html";
-      } catch (e) {
-        console.error("Redirect error:", e);
-      }
+  document.getElementById("googleLogin").addEventListener("click", async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      await ensureUserDoc(result.user);
+      const role = await getUserRole(result.user.uid);
+      redirectByRole(role);
+    } catch (err) {
+      alert("Google sign-in failed: " + err.message);
     }
+  });
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) redirectUser(user);
-    });
-
-    document.getElementById('loginForm').addEventListener('submit', async e => {
-      e.preventDefault();
-      const email = e.target.email.value.trim();
-      const password = e.target.password.value;
-
-      try {
-        const cred = await signInWithEmailAndPassword(auth, email, password);
-        await saveUser(cred.user);
-        redirectUser(cred.user);
-      } catch (err) {
-        showAlert("error", "❌ " + err.message);
-      }
-    });
-
-    document.getElementById('signupBtn').addEventListener('click', async () => {
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-
-      if (!email || password.length < 6) {
-        showAlert("error", "⚠️ Please enter a valid email and a password of at least 6 characters.");
-        return;
-      }
-
-      try {
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
-        await saveUser(cred.user);
-        showAlert("success", "✅ Account created! Please complete your profile.");
-        setTimeout(() => window.location.href = "profile.html", 1500);
-      } catch (err) {
-        showAlert("error", "❌ " + err.message);
-      }
-    });
-
-    document.getElementById('googleBtn').addEventListener('click', async () => {
-      const provider = new GoogleAuthProvider();
-      try {
-        const cred = await signInWithPopup(auth, provider);
-        await saveUser(cred.user);
-        const snap = await getDoc(doc(db, "users", cred.user.uid));
-        if (!snap.exists() || !snap.data().role) {
-          window.location.href = "profile.html";
-        } else {
-          redirectUser(cred.user);
-        }
-      } catch (err) {
-        showAlert("error", "❌ " + err.message);
-      }
-    });
-  </script>
-
-  <!-- Service Worker Registration -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./service-worker.js')
-        .then(() => console.log("✅ Service Worker registered"))
-        .catch((err) => console.error("❌ Service Worker failed", err));
+  async function ensureUserDoc(user) {
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
+    if (!snap.exists()) {
+      await setDoc(userRef, {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName || "",
+        phone: "",
+        role: "customer",
+        available: true,
+        premium: false,
+        createdAt: serverTimestamp(),
+      });
     }
-  </script>
+  }
+
+  async function getUserRole(uid) {
+    try {
+      const userRef = doc(db, "users", uid);
+      const snap = await getDoc(userRef);
+      if (snap.exists()) {
+        return snap.data().role || "customer";
+      }
+      return "customer";
+    } catch {
+      return "customer";
+    }
+  }
+
+  function redirectByRole(role) {
+    switch (role) {
+      case "worker":
+        window.location.href = "worker-dashboard.html";
+        break;
+      case "store":
+        window.location.href = "store-dashboard.html";
+        break;
+      case "admin":
+        window.location.href = "admin-dashboard.html";
+        break;
+      default:
+        window.location.href = "customer-dashboard.html";
+    }
+  }
+
+  function validateEmail(email) {
+    // Simple regex for basic email validation
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+</script>
 </body>
 </html>

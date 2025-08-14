@@ -1,0 +1,28 @@
+{
+  "rules": {
+    "locations": {
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid",
+        ".read": "auth != null"
+      }
+    },
+    "users": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || auth.uid === 'CSD7SWHAjpN00QNxXx9TMTG6ENv1')",
+        ".write": "auth != null && auth.uid === $uid && (!newData.hasChild('premium') || newData.child('premium').val() == data.child('premium').val())"
+      },
+      ".write": "auth != null && auth.uid === 'CSD7SWHAjpN00QNxXx9TMTG6ENv1'",
+      ".read": "auth != null"
+    },
+    "jobs": {
+      "$jobId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (auth.uid === data.child('customerId').val() || auth.uid === data.child('assignedWorkerId').val() || auth.uid === 'CSD7SWHAjpN00QNxXx9TMTG6ENv1')"
+      }
+    },
+    "payments": {
+      ".read": "auth != null && auth.uid === 'CSD7SWHAjpN00QNxXx9TMTG6ENv1'",
+      ".write": "auth != null && auth.uid === 'CSD7SWHAjpN00QNxXx9TMTG6ENv1'"
+    }
+  }
+}

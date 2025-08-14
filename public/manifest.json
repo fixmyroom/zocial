@@ -1,19 +1,19 @@
 {
-  "name": "FixMyRoom 🛠️",
+  "name": "FixMyRoom",
   "short_name": "FixMyRoom",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#1db954",
-  "orientation": "portrait-primary",
+  "theme_color": "#000000",
+  "description": "Find trusted workers nearby — painters, plumbers, electricians and stores.",
   "icons": [
     {
-      "src": "/img/logo-192.png",
+      "src": "/img/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/img/logo-512.png",
+      "src": "/img/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
